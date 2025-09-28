@@ -1,0 +1,145 @@
+-- 创建主界面窗口
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "XX缝合脚本界面"
+ScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+
+-- 主窗口框架
+local MainFrame = Instance.new("Frame")
+MainFrame.Size = UDim2.new(0, 500, 0, 300)
+MainFrame.Position = UDim2.new(0.5, -250, 0.5, -150)
+MainFrame.BackgroundColor3 = Color3.new(0.1, 0.1, 0.1)
+MainFrame.BorderSizePixel = 2
+MainFrame.BorderColor3 = Color3.new(0.3, 0.3, 0.3)
+MainFrame.Parent = ScreenGui
+
+-- 标题栏
+local TitleBar = Instance.new("Frame")
+TitleBar.Size = UDim2.new(1, 0, 0, 30)
+TitleBar.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
+TitleBar.Parent = MainFrame
+
+local TitleLabel = Instance.new("TextLabel")
+TitleLabel.Size = UDim2.new(0.7, 0, 1, 0)
+TitleLabel.Position = UDim2.new(0, 10, 0, 0)
+TitleLabel.BackgroundTransparency = 1
+TitleLabel.Text = "XX缝合脚本"
+TitleLabel.TextColor3 = Color3.new(1, 1, 1)
+TitleLabel.TextSize = 18
+TitleLabel.Parent = TitleBar
+
+local AuthorLabel = Instance.new("TextLabel")
+AuthorLabel.Size = UDim2.new(0.3, 0, 1, 0)
+TitleLabel.Position = UDim2.new(0.7, 10, 0, 0)
+AuthorLabel.BackgroundTransparency = 1
+AuthorLabel.Text = "作者:XX"
+AuthorLabel.TextColor3 = Color3.new(1, 1, 1)
+AuthorLabel.TextSize = 14
+AuthorLabel.Parent = TitleBar
+
+-- 关闭按钮
+local CloseButton = Instance.new("TextButton")
+CloseButton.Size = UDim2.new(0, 20, 0, 20)
+CloseButton.Position = UDim2.new(1, -25, 0, 5)
+CloseButton.BackgroundColor3 = Color3.new(0.6, 0.2, 0.2)
+CloseButton.Text = "X"
+CloseButton.TextColor3 = Color3.new(1, 1, 1)
+CloseButton.Parent = TitleBar
+
+CloseButton.MouseButton1Click:Connect(function()
+    ScreenGui:Destroy()
+end)
+
+-- 侧边功能栏
+local SideBar = Instance.new("Frame")
+SideBar.Size = UDim2.new(0, 100, 1, -30)
+SideBar.Position = UDim2.new(0, 0, 0, 30)
+SideBar.BackgroundColor3 = Color3.new(0.25, 0.25, 0.25)
+SideBar.Parent = MainFrame
+
+local function createFunctionButton(name, yPos)
+    local btn = Instance.new("TextButton")
+    btn.Size = UDim2.new(1, 0, 0, 40)
+    btn.Position = UDim2.new(0, 0, 0, yPos)
+    btn.BackgroundColor3 = Color3.new(0.3, 0.3, 0.3)
+    btn.Text = name
+    btn.TextColor3 = Color3.new(1, 1, 1)
+    btn.Parent = SideBar
+    return btn
+end
+
+local func1Btn = createFunctionButton("功能1", 0)
+local func2Btn = createFunctionButton("功能2", 40)
+local func3Btn = createFunctionButton("功能3", 80)
+
+-- 内容区域
+local ContentFrame = Instance.new("Frame")
+ContentFrame.Size = UDim2.new(1, -100, 1, -30)
+ContentFrame.Position = UDim2.new(0, 100, 0, 30)
+ContentFrame.BackgroundColor3 = Color3.new(0.15, 0.15, 0.15)
+ContentFrame.Parent = MainFrame
+
+-- 功能1内容框
+local Func1Content = Instance.new("Frame")
+Func1Content.Size = UDim2.new(1, -10, 0, 50)
+Func1Content.Position = UDim2.new(0, 10, 0, 10)
+Func1Content.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
+Func1Content.Parent = ContentFrame
+
+local Func1Label = Instance.new("TextLabel")
+Func1Label.Size = UDim2.new(1, 0, 1, 0)
+Func1Label.BackgroundTransparency = 1
+Func1Label.Text = "XX汉化脚本"
+Func1Label.TextColor3 = Color3.new(1, 1, 1)
+Func1Label.TextSize = 16
+Func1Label.Parent = Func1Content
+
+-- 功能2内容框（初始隐藏）
+local Func2Content = Instance.new("Frame")
+Func2Content.Size = UDim2.new(1, -10, 0, 50)
+Func2Content.Position = UDim2.new(0, 10, 0, 80)
+Func2Content.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
+Func2Content.Visible = false
+Func2Content.Parent = ContentFrame
+
+local Func2Label = Instance.new("TextLabel")
+Func2Label.Size = UDim2.new(1, 0, 1, 0)
+Func2Label.BackgroundTransparency = 1
+Func2Label.Text = "功能2内容区域"
+Func2Label.TextColor3 = Color3.new(1, 1, 1)
+Func2Label.TextSize = 16
+Func2Label.Parent = Func2Content
+
+-- 功能3内容框（初始隐藏）
+local Func3Content = Instance.new("Frame")
+Func3Content.Size = UDim2.new(1, -10, 0, 50)
+Func3Content.Position = UDim2.new(0, 10, 0, 150)
+Func3Content.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
+Func3Content.Visible = false
+Func3Content.Parent = ContentFrame
+
+local Func3Label = Instance.new("TextLabel")
+Func3Label.Size = UDim2.new(1, 0, 1, 0)
+Func3Label.BackgroundTransparency = 1
+Func3Label.Text = "功能3内容区域"
+Func3Label.TextColor3 = Color3.new(1, 1, 1)
+Func3Label.TextSize = 16
+Func3Label.Parent = Func3Content
+
+-- 功能按钮点击事件
+func1Btn.MouseButton1Click:Connect(function()
+    Func1Content.Visible = true
+    Func2Content.Visible = false
+    Func3Content.Visible = false
+end)
+
+func2Btn.MouseButton1Click:Connect(function()
+    Func1Content.Visible = false
+    Func2Content.Visible = true
+    Func3Content.Visible = false
+end)
+
+func3Btn.MouseButton1Click:Connect(function()
+    Func1Content.Visible = false
+    Func2Content.Visible = false
+    Func3Content.Visible = true
+end)
