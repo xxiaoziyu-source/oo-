@@ -1,196 +1,186 @@
--- 优化目标：提升Roblox环境兼容性，增加错误处理，确保界面正常显示
-local success, err = pcall(function()
-    -- 1. 优先获取LocalPlayer，增加超时等待（避免玩家加载未完成导致失败）
-    local LocalPlayer = game:GetService("Players").LocalPlayer
-    if not LocalPlayer then
-        warn("未找到本地玩家，等待5秒后重试...")
-        wait(5)
-        LocalPlayer = game:GetService("Players").LocalPlayer
-        if not LocalPlayer then error("无法获取本地玩家，脚本终止") end
+function love.load()
+    -- 窗口设置
+    love.window.setTitle("Dreamkill UI Demo")
+    love.window.setMode(800, 600, {resizable = true})
+
+    -- 颜色定义
+    local colors = {
+        primary = {126/255, 34/255, 206/255, 0.8},
+        secondary = {6/255, 182/255, 212/255, 0.8},
+        dark = {30/255, 41/255, 59/255, 0.9},
+        light = {248/255, 250/255, 252/255, 1},
+        gray = {100/255, 116/255, 139/255, 0.6}
+    }
+    _G.colors = colors
+
+    -- 左侧菜单数据
+    local leftMenu = {
+        {title = "Word", isSelected = true},
+        {title = "Combat", icon = "⚡"},
+        {title = "Movement", icon = "➡️"},
+        {title = "Render", icon = "👁️"},
+        {title = "Player", icon = "👤"},
+        {title = "Misc", icon = "❓"},
+        {title = "Configurations", icon = "⚙️", isConfig = true},
+        {title = "导入配置", icon = "➕", isButton = true},
+        {title = "布吉岛", isSub = true},
+        {title = "EC", isSub = true},
+        {title = "花雨庭", isSub = true},
+        {title = "租赁服", isSub = true},
+    }
+    _G.leftMenu = leftMenu
+
+    -- 右侧功能开关数据
+    local toggles = {
+        {name = "点击破坏", desc = "准心指向的地方点击即可破坏."},
+        {name = "矩阵破坏", desc = "向破坏的那个点半径延伸破坏n格."},
+        {name = "获取权限", desc = "强制获取管理/成员权限."},
+        {name = "游戏模式", desc = "强制获取创造/生存/冒险/旁观模式."},
+        {name = "自动搭路", desc = "朝向脚底自动搭方块."},
+    }
+    _G.toggles = toggles
+    for i, v in ipairs(toggles) do
+        v.enabled = false
     end
 
-    -- 2. 安全获取PlayerGui，避免直接WaitForChild超时
-    local PlayerGui = LocalPlayer:FindFirstChild("PlayerGui")
-    if not PlayerGui then
-        PlayerGui = Instance.new("PlayerGui")
-        PlayerGui.Parent = LocalPlayer
-        warn("PlayerGui不存在，已自动创建")
+    -- 顶部栏状态
+    _G.topTab = "Word"
+end
+
+function love.update(dt)
+    -- 此处可添加交互逻辑（如按钮点击、拖拽等）
+end
+
+function love.draw()
+    -- 背景
+    love.graphics.clear(0.1, 0.1, 0.1)
+
+    -- 顶部栏
+    drawTopBar()
+
+    -- 左侧菜单
+    drawLeftMenu()
+
+    -- 右侧内容区
+    drawRightContent()
+
+    -- 版本信息
+    love.graphics.setColor(colors.gray)
+    love.graphics.printf("Dreamkill Version:3.0.5", 10, love.graphics.getHeight() - 30, 200, "left")
+    love.graphics.printf("6 times uid:001", love.graphics.getWidth() - 150, love.graphics.getHeight() - 30, 150, "right")
+end
+
+-- 绘制顶部栏
+function drawTopBar()
+    local w, h = love.graphics.getWidth(), 50
+    love.graphics.setColor(colors.primary[1], colors.primary[2], colors.primary[3], 0.3)
+    love.graphics.rectangle("fill", 0, 0, w, h)
+
+    -- 左侧图标与标题
+    love.graphics.setColor(colors.light)
+    love.graphics.print("☰", 20, 15, 0, 1.5)
+    love.graphics.print("Dreamkill", 50, 15, 0, 1.5)
+
+    -- 中间标签页
+    love.graphics.setColor(colors.light)
+    love.graphics.print("🔍", 150, 20)
+    love.graphics.setColor(colors.primary)
+    love.graphics.rectangle("fill", 170, 10, 100, 30, 5)
+    love.graphics.setColor(colors.light)
+    love.graphics.print("Word +", 180, 18)
+
+    -- 右侧窗口按钮
+    love.graphics.setColor(colors.light)
+    love.graphics.print("—", w - 60, 15, 0, 2)
+    love.graphics.print("🗗", w - 30, 15, 0, 1.5)
+end
+
+-- 绘制左侧菜单
+function drawLeftMenu()
+    local w, h = 200, love.graphics.getHeight() - 50
+    love.graphics.setColor(colors.dark)
+    love.graphics.rectangle("fill", 0, 50, w, h)
+
+    -- 菜单选项绘制
+    local y = 60
+    for i, item in ipairs(leftMenu) do
+        local isSelected = item.isSelected or false
+        local isConfig = item.isConfig or false
+        local isButton = item.isButton or false
+        local isSub = item.isSub or false
+
+        -- 背景样式
+        if isSelected or isConfig or isButton then
+            love.graphics.setColor(colors.primary[1], colors.primary[2], colors.primary[3], 0.5)
+        elseif isSub then
+            love.graphics.setColor(colors.dark)
+        else
+            love.graphics.setColor(colors.dark[1], colors.dark[2], colors.dark[3], 0.3)
+        end
+        love.graphics.rectangle("fill", 10, y, w - 20, 30, 3)
+
+        -- 文字与图标
+        love.graphics.setColor(colors.light)
+        if item.icon then
+            love.graphics.print(item.icon .. " " .. item.title, 30, y + 5)
+        else
+            love.graphics.print(item.title, 30, y + 5)
+        end
+
+        y = y + 35
+    end
+end
+
+-- 绘制右侧内容区
+function drawRightContent()
+    local x, y = 200, 50
+    local w, h = love.graphics.getWidth() - 200, love.graphics.getHeight() - 50
+    love.graphics.setColor(colors.dark[1], colors.dark[2], colors.dark[3], 0.6)
+    love.graphics.rectangle("fill", x, y, w, h)
+
+    -- 功能开关绘制
+    local toggleY = 70
+    for i, toggle in ipairs(toggles) do
+        -- 开关背景
+        love.graphics.setColor(colors.dark)
+        love.graphics.rectangle("fill", x + 20, toggleY, w - 40, 40, 5)
+
+        -- 开关名称与描述
+        love.graphics.setColor(colors.light)
+        love.graphics.print(toggle.name, x + 30, toggleY + 5, 0, 1.2)
+        love.graphics.setColor(colors.gray)
+        love.graphics.print(toggle.desc, x + 30, toggleY + 25, 0, 0.8)
+
+        -- 开关按钮
+        local toggleW = 50
+        local toggleX = x + w - 70
+        love.graphics.setColor(toggle.enabled and colors.primary or colors.gray)
+        love.graphics.rectangle("fill", toggleX, toggleY + 10, toggleW, 20, 10)
+        love.graphics.setColor(toggle.enabled and colors.light or colors.dark)
+        love.graphics.circle("fill", toggle.enabled and toggleX + toggleW - 10 or toggleX + 10, toggleY + 20, 8)
+
+        toggleY = toggleY + 50
+    end
+end
+
+-- 处理鼠标点击（示例：开关交互）
+function love.mousepressed(x, y, button)
+    if button ~= 1 then return end
+
+    local contentX, contentY = 200, 50
+    local contentW, contentH = love.graphics.getWidth() - 200, love.graphics.getHeight() - 50
+    if x < contentX or x > contentX + contentW or y < contentY or y > contentY + contentH then
+        return
     end
 
-    -- 3. 创建主界面窗口（增加同名界面检测，避免重复创建）
-    local ScreenGui = PlayerGui:FindFirstChild("XX缝合脚本界面")
-    if ScreenGui then ScreenGui:Destroy() end -- 删除旧界面
-    ScreenGui = Instance.new("ScreenGui")
-    ScreenGui.Name = "XX缝合脚本界面"
-    ScreenGui.Parent = PlayerGui
-    ScreenGui.IgnoreGuiInset = true -- 忽略屏幕边缘偏移（适配手机/电脑不同分辨率）
-
-    -- 4. 主窗口框架（增加ZIndex，确保界面在最上层）
-    local MainFrame = Instance.new("Frame")
-    MainFrame.Size = UDim2.new(0, 500, 0, 300)
-    MainFrame.Position = UDim2.new(0.5, -250, 0.5, -150)
-    MainFrame.BackgroundColor3 = Color3.new(0.1, 0.1, 0.1)
-    MainFrame.BorderSizePixel = 2
-    MainFrame.BorderColor3 = Color3.new(0.3, 0.3, 0.3)
-    MainFrame.ZIndex = 100 -- 确保界面不被其他UI遮挡
-    MainFrame.Parent = ScreenGui
-
-    -- 5. 标题栏（修复原脚本中AuthorLabel位置错误的问题）
-    local TitleBar = Instance.new("Frame")
-    TitleBar.Size = UDim2.new(1, 0, 0, 30)
-    TitleBar.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
-    TitleBar.ZIndex = 101
-    TitleBar.Parent = MainFrame
-
-    -- 标题文本（原脚本无问题，保留）
-    local TitleLabel = Instance.new("TextLabel")
-    TitleLabel.Size = UDim2.new(0.7, 0, 1, 0)
-    TitleLabel.Position = UDim2.new(0, 10, 0, 0)
-    TitleLabel.BackgroundTransparency = 1
-    TitleLabel.Text = "XX缝合脚本"
-    TitleLabel.TextColor3 = Color3.new(1, 1, 1)
-    TitleLabel.TextSize = 18
-    TitleLabel.ZIndex = 102
-    TitleLabel.Parent = TitleBar
-
-    -- 作者文本（修复原脚本中“TitleLabel.Position”写错的问题，改为AuthorLabel）
-    local AuthorLabel = Instance.new("TextLabel")
-    AuthorLabel.Size = UDim2.new(0.3, 0, 1, 0)
-    AuthorLabel.Position = UDim2.new(0.7, 10, 0, 0) -- 原错误：写为TitleLabel.Position
-    AuthorLabel.BackgroundTransparency = 1
-    AuthorLabel.Text = "作者:XX"
-    AuthorLabel.TextColor3 = Color3.new(1, 1, 1)
-    AuthorLabel.TextSize = 14
-    AuthorLabel.ZIndex = 102
-    AuthorLabel.Parent = TitleBar
-
-    -- 关闭按钮（保留原功能，增加ZIndex）
-    local CloseButton = Instance.new("TextButton")
-    CloseButton.Size = UDim2.new(0, 20, 0, 20)
-    CloseButton.Position = UDim2.new(1, -25, 0, 5)
-    CloseButton.BackgroundColor3 = Color3.new(0.6, 0.2, 0.2)
-    CloseButton.Text = "X"
-    CloseButton.TextColor3 = Color3.new(1, 1, 1)
-    CloseButton.ZIndex = 102
-    CloseButton.Parent = TitleBar
-    CloseButton.MouseButton1Click:Connect(function()
-        ScreenGui:Destroy()
-    end)
-
-    -- 6. 侧边功能栏（保留原功能，增加ZIndex）
-    local SideBar = Instance.new("Frame")
-    SideBar.Size = UDim2.new(0, 100, 1, -30)
-    SideBar.Position = UDim2.new(0, 0, 0, 30)
-    SideBar.BackgroundColor3 = Color3.new(0.25, 0.25, 0.25)
-    SideBar.ZIndex = 101
-    SideBar.Parent = MainFrame
-
-    -- 功能按钮创建函数（保留原逻辑）
-    local function createFunctionButton(name, yPos)
-        local btn = Instance.new("TextButton")
-        btn.Size = UDim2.new(1, 0, 0, 40)
-        btn.Position = UDim2.new(0, 0, 0, yPos)
-        btn.BackgroundColor3 = Color3.new(0.3, 0.3, 0.3)
-        btn.Text = name
-        btn.TextColor3 = Color3.new(1, 1, 1)
-        btn.ZIndex = 102
-        btn.Parent = SideBar
-        -- 增加按钮 hover 效果（提升交互体验）
-        btn.MouseEnter:Connect(function()
-            btn.BackgroundColor3 = Color3.new(0.4, 0.4, 0.4)
-        end)
-        btn.MouseLeave:Connect(function()
-            btn.BackgroundColor3 = Color3.new(0.3, 0.3, 0.3)
-        end)
-        return btn
+    local toggleY = 70
+    for i, toggle in ipairs(toggles) do
+        local toggleX = contentX + contentW - 70
+        local toggleW = 50
+        local toggleH = 20
+        if x > toggleX and x < toggleX + toggleW and y > toggleY + 10 and y < toggleY + 30 then
+            toggle.enabled = not toggle.enabled
+        end
+        toggleY = toggleY + 50
     end
-
-    local func1Btn = createFunctionButton("功能1", 0)
-    local func2Btn = createFunctionButton("功能2", 40)
-    local func3Btn = createFunctionButton("功能3", 80)
-
-    -- 7. 内容区域（保留原功能，增加ZIndex）
-    local ContentFrame = Instance.new("Frame")
-    ContentFrame.Size = UDim2.new(1, -100, 1, -30)
-    ContentFrame.Position = UDim2.new(0, 100, 0, 30)
-    ContentFrame.BackgroundColor3 = Color3.new(0.15, 0.15, 0.15)
-    ContentFrame.ZIndex = 101
-    ContentFrame.Parent = MainFrame
-
-    -- 功能1内容框（保留原功能）
-    local Func1Content = Instance.new("Frame")
-    Func1Content.Size = UDim2.new(1, -10, 0, 50)
-    Func1Content.Position = UDim2.new(0, 10, 0, 10)
-    Func1Content.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
-    Func1Content.ZIndex = 102
-    Func1Content.Parent = ContentFrame
-
-    local Func1Label = Instance.new("TextLabel")
-    Func1Label.Size = UDim2.new(1, 0, 1, 0)
-    Func1Label.BackgroundTransparency = 1
-    Func1Label.Text = "XX汉化脚本"
-    Func1Label.TextColor3 = Color3.new(1, 1, 1)
-    Func1Label.TextSize = 16
-    Func1Label.ZIndex = 103
-    Func1Label.Parent = Func1Content
-
-    -- 功能2内容框（保留原功能）
-    local Func2Content = Instance.new("Frame")
-    Func2Content.Size = UDim2.new(1, -10, 0, 50)
-    Func2Content.Position = UDim2.new(0, 10, 0, 80)
-    Func2Content.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
-    Func2Content.Visible = false
-    Func2Content.ZIndex = 102
-    Func2Content.Parent = ContentFrame
-
-    local Func2Label = Instance.new("TextLabel")
-    Func2Label.Size = UDim2.new(1, 0, 1, 0)
-    Func2Label.BackgroundTransparency = 1
-    Func2Label.Text = "功能2内容区域"
-    Func2Label.TextColor3 = Color3.new(1, 1, 1)
-    Func2Label.TextSize = 16
-    Func2Label.ZIndex = 103
-    Func2Label.Parent = Func2Content
-
-    -- 功能3内容框（保留原功能）
-    local Func3Content = Instance.new("Frame")
-    Func3Content.Size = UDim2.new(1, -10, 0, 50)
-    Func3Content.Position = UDim2.new(0, 10, 0, 150)
-    Func3Content.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
-    Func3Content.Visible = false
-    Func3Content.ZIndex = 102
-    Func3Content.Parent = ContentFrame
-
-    local Func3Label = Instance.new("TextLabel")
-    Func3Label.Size = UDim2.new(1, 0, 1, 0)
-    Func3Label.BackgroundTransparency = 1
-    Func3Label.Text = "功能3内容区域"
-    Func3Label.TextColor3 = Color3.new(1, 1, 1)
-    Func3Label.TextSize = 16
-    Func3Label.ZIndex = 103
-    Func3Label.Parent = Func3Content
-
-    -- 8. 功能按钮点击事件（保留原逻辑）
-    func1Btn.MouseButton1Click:Connect(function()
-        Func1Content.Visible = true
-        Func2Content.Visible = false
-        Func3Content.Visible = false
-    end)
-    func2Btn.MouseButton1Click:Connect(function()
-        Func1Content.Visible = false
-        Func2Content.Visible = true
-        Func3Content.Visible = false
-    end)
-    func3Btn.MouseButton1Click:Connect(function()
-        Func1Content.Visible = false
-        Func2Content.Visible = false
-        Func3Content.Visible = true
-    end)
-
-    print("脚本执行成功，界面已创建")
-end)
-
--- 9. 错误捕获：若脚本执行失败，输出具体错误原因（方便排查）
-if not success then
-    warn("脚本执行失败：" .. err)
 end
