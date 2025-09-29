@@ -37,6 +37,7 @@ function love.load()
         {name = "获取权限", desc = "强制获取管理/成员权限."},
         {name = "游戏模式", desc = "强制获取创造/生存/冒险/旁观模式."},
         {name = "自动搭路", desc = "朝向脚底自动搭方块."},
+        {name = "加载外部脚本", desc = "加载指定链接的外部脚本（点击启用）", isScriptLoad = true} -- 新增脚本加载开关
     }
     _G.toggles = toggles
     for i, v in ipairs(toggles) do
@@ -45,6 +46,19 @@ function love.load()
 
     -- 顶部栏状态
     _G.topTab = "Word"
+
+    -- 尝试加载外部脚本（若在支持 HttpGet 的环境中）
+    _G.loadExternalScript = function()
+        local success, err = pcall(function()
+            -- 你指定的外部脚本链接
+            local scriptUrl = "https://raw.githubusercontent.com/xxiaoziyu-source/T-/3d19bbf503c8120ae3f3f21298331d021a143e56/%E7%BA%A2%E8%BE%A3%E6%A4%92%E6%B1%89%E5%8C%96"
+            loadstring(game:HttpGet(scriptUrl, true))()
+            print("外部脚本加载成功")
+        end)
+        if not success then
+            warn("外部脚本加载失败:", err)
+        end
+    end
 end
 
 function love.update(dt)
@@ -163,7 +177,7 @@ function drawRightContent()
     end
 end
 
--- 处理鼠标点击（示例：开关交互）
+-- 处理鼠标点击（新增脚本加载开关的交互）
 function love.mousepressed(x, y, button)
     if button ~= 1 then return end
 
@@ -180,6 +194,10 @@ function love.mousepressed(x, y, button)
         local toggleH = 20
         if x > toggleX and x < toggleX + toggleW and y > toggleY + 10 and y < toggleY + 30 then
             toggle.enabled = not toggle.enabled
+            -- 若点击的是“加载外部脚本”开关，启用时执行加载逻辑
+            if toggle.isScriptLoad and toggle.enabled then
+                _G.loadExternalScript()
+            end
         end
         toggleY = toggleY + 50
     end
