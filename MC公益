@@ -1,6 +1,5 @@
 local Translations = {
    --["这里填要替换的英文"] = "这里填中文",
-   -- MozCraft 汉化表
     ["MozCraft"] = "莫兹工艺",
     ["Info"] = "信息",
     ["Construction"] = "建筑",
