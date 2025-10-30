@@ -1,0 +1,219 @@
+local Translations = {
+   --["这里填要替换的英文"] = "这里填中文",
+   -- MozCraft 汉化表
+    ["MozCraft"] = "莫兹工艺",
+    ["Info"] = "信息",
+    ["Construction"] = "建筑",
+    ["Equipments"] = "装备",
+    ["Items"] = "物品",
+    ["Discord"] = "Discord 社区",
+    ["button"] = "按钮",
+    ["Updates & Announcements"] = "更新公告",
+    ["MozCraft V2 With full blocks is officially coming soon! and will be Implemented PC Support! Want more infos? Join Our Discord! Thank you for your support!"] = "莫兹工艺 V2 全方块版本即将上线！新增电脑端支持！更多信息请加入 Discord 社区！感谢支持！",
+    ["MozCraft: RoScript"] = "莫兹工艺：RoScript",
+    ["SzR Studio"] = "SzR 工作室",
+    ["Rayfield UI"] = "Rayfield 界面",
+    ["Planks"] = "木板",
+    ["Oak Planks"] = "橡木木板",
+    ["Dark Planks"] = "深色木板",
+    ["Jungle Planks"] = "丛林木板",
+    ["Acacia Planks"] = "金合欢木板",
+    ["Cherry Planks"] = "樱桃木板",
+    ["Birch Planks"] = "白桦木板",
+    ["Bamboo Planks"] = "竹木板",
+    ["Mangrove Planks"] = "红树木板",
+    ["Crimson Planks"] = "绯红木板",
+    ["Warped Planks"] = "诡异木板",
+    ["Glass Blocks"] = "玻璃块",
+    ["Glass Block"] = "玻璃块",
+    ["Weapons"] = "武器",
+    ["Pickaxe"] = "镐",
+    ["Chest"] = "箱子",
+    ["Coming Soon New Update"] = "即将更新",
+    ["Nature"] = "自然",
+    ["Settings"] = "设置",
+    ["Add-ons"] = "附加组件",
+    ["Ground"] = "地面",
+    ["Grass Block"] = "草方块",
+    ["Bedrock"] = "基岩",
+    ["Dirt Block"] = "泥土块",
+    ["Stone Block"] = "石块",
+    ["Snowy Grass"] = "雪地草",
+    ["Generate Flat World"] = "生成平坦世界",
+    ["Block Rotator"] = "方块旋转器",
+    ["Search"] = "搜索",
+    ["Color Picker"] = "颜色选择器",
+    ["Save"] = "保存",
+    ["Close"] = "关闭",
+    ["New World"] = "新世界",
+    ["Load World"] = "加载世界",
+    ["Delete World"] = "删除世界",
+    ["Game Mode"] = "游戏模式",
+    ["Survival"] = "生存",
+    ["Creative"] = "创造",
+    ["Difficulty"] = "难度",
+    ["Peaceful"] = "和平",
+    ["Easy"] = "简单",
+    ["Normal"] = "普通",
+    ["Hard"] = "困难",
+    ["Controls"] = "控制",
+    ["Movement"] = "移动",
+    ["Jump"] = "跳跃",
+    ["Sprint"] = "疾跑",
+    ["Crouch"] = "潜行",
+    ["Interact"] = "交互",
+    ["Place Block"] = "放置方块",
+    ["Break Block"] = "破坏方块",
+    ["Inventory"] = "背包",
+    ["Crafting"] = "合成",
+    ["Smelting"] = "熔炼",
+    ["Enchanting"] = "附魔",
+    ["Achievements"] = "成就",
+    ["Statistics"] = "统计",
+    ["Multiplayer"] = "多人游戏",
+    ["Host Game"] = "创建游戏",
+    ["Join Game"] = "加入游戏",
+    ["Server List"] = "服务器列表",
+    ["Options"] = "选项",
+    ["Video"] = "视频",
+    ["Graphics"] = "图形",
+    ["Render Distance"] = "渲染距离",
+    ["Brightness"] = "亮度",
+    ["Sound"] = "声音",
+    ["Music"] = "音乐",
+    ["SFX"] = "音效",
+    ["Language"] = "语言",
+    ["Keyboard"] = "键盘",
+    ["Mouse"] = "鼠标",
+    ["Controller"] = "控制器",
+    ["Accessibility"] = "辅助功能",
+    ["Chat"] = "聊天",
+    ["Send Message"] = "发送消息",
+    ["Emotes"] = "表情",
+    ["Quests"] = "任务",
+    ["Map"] = "地图",
+    ["Compass"] = "指南针",
+    ["Clock"] = "时钟",
+    ["Weather"] = "天气",
+    ["Time"] = "时间",
+    ["Day"] = "白天",
+    ["Night"] = "夜晚",
+    ["Rain"] = "下雨",
+    ["Thunder"] = "雷雨",
+    ["Clear"] = "晴天"
+}
+
+local function translateText(text)
+    if not text or type(text) ~= "string" then return text end
+    
+    if Translations[text] then
+        return Translations[text]
+    end
+    
+    for en, cn in pairs(Translations) do
+        if text:find(en) then
+            return text:gsub(en, cn)
+        end
+    end
+    
+    return text
+end
+
+local function setupTranslationEngine()
+    local success, err = pcall(function()
+        local oldIndex = getrawmetatable(game).__newindex
+        setreadonly(getrawmetatable(game), false)
+        
+        getrawmetatable(game).__newindex = newcclosure(function(t, k, v)
+            if (t:IsA("TextLabel") or t:IsA("TextButton") or t:IsA("TextBox")) and k == "Text" then
+                v = translateText(tostring(v))
+            end
+            return oldIndex(t, k, v)
+        end)
+        
+        setreadonly(getrawmetatable(game), true)
+    end)
+    
+    if not success then
+        warn("元表劫持失败:", err)
+       
+        local translated = {}
+        local function scanAndTranslate()
+            for _, gui in ipairs(game:GetService("CoreGui"):GetDescendants()) do
+                if (gui:IsA("TextLabel") or gui:IsA("TextButton") or gui:IsA("TextBox")) and not translated[gui] then
+                    pcall(function()
+                        local text = gui.Text
+                        if text and text ~= "" then
+                            local translatedText = translateText(text)
+                            if translatedText ~= text then
+                                gui.Text = translatedText
+                                translated[gui] = true
+                            end
+                        end
+                    end)
+                end
+            end
+            
+            local player = game:GetService("Players").LocalPlayer
+            if player and player:FindFirstChild("PlayerGui") then
+                for _, gui in ipairs(player.PlayerGui:GetDescendants()) do
+                    if (gui:IsA("TextLabel") or gui:IsA("TextButton") or gui:IsA("TextBox")) and not translated[gui] then
+                        pcall(function()
+                            local text = gui.Text
+                            if text and text ~= "" then
+                                local translatedText = translateText(text)
+                                if translatedText ~= text then
+                                    gui.Text = translatedText
+                                    translated[gui] = true
+                                end
+                            end
+                        end)
+                    end
+                end
+            end
+        end
+        
+        local function setupDescendantListener(parent)
+            parent.DescendantAdded:Connect(function(descendant)
+                if descendant:IsA("TextLabel") or descendant:IsA("TextButton") or descendant:IsA("TextBox") then
+                    task.wait(0.1)
+                    pcall(function()
+                        local text = descendant.Text
+                        if text and text ~= "" then
+                            local translatedText = translateText(text)
+                            if translatedText ~= text then
+                                descendant.Text = translatedText
+                            end
+                        end
+                    end)
+                end
+            end)
+        end
+        
+        pcall(setupDescendantListener, game:GetService("CoreGui"))
+        local player = game:GetService("Players").LocalPlayer
+        if player and player:FindFirstChild("PlayerGui") then
+            pcall(setupDescendantListener, player.PlayerGui)
+        end
+        
+        while true do
+            scanAndTranslate()
+            task.wait(3)
+        end
+    end
+end
+
+task.wait(2)
+
+setupTranslationEngine()
+
+local success, err = pcall(function()
+--这下面填加载外部脚本
+loadstring(game:HttpGet("https://raw.githubusercontent.com/ZynixMoz/SkyeMoz/refs/heads/main/MozCraft/Main"))()
+
+end)
+
+if not success then
+    warn("加载失败:", err)
+end
+1
